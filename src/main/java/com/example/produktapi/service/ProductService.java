@@ -18,7 +18,10 @@ public class ProductService {
         this.productRepository = productRepository;
     }
 
-    public List<Product> getAllProducts() {
+    public List<Product> getAllProducts() {  //Integer number
+       /* if(number == 2){
+            productRepository.findAll();
+        } */
         return productRepository.findAll();
     }
 
