@@ -11,6 +11,8 @@ import static org.mockito.BDDMockito.*;
 
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,6 +30,71 @@ class ProductServiceTest {
     @InjectMocks
     private ProductService underTest;
 
+
+    @Test
+    void whenSearchingForAllProducts_thenReturnAllProducts() {
+        //given
+        List<Product> products = Arrays.asList(
+                new Product("En dator", 25000.0, "elektronik", "Bra att ha", "datorBild"),
+                new Product("Diamanthalsband", 2560.0, "jewelry", "Extra stamina irl", "diamantBild"));
+        ProductRepository mockedRepository = mock(ProductRepository.class);
+        when(mockedRepository.findAll()).thenReturn(products);
+//when
+        List<Product> allProducts = mockedRepository.findAll();
+        //then
+        assertEquals(2, allProducts.size());
+
+
+    }
+
+
+    @Test
+    void whenSearchingForAllCategories_thenReturnAllCategories() {
+        List<String> categoryList = new ArrayList<String>();
+        categoryList.add("Elektronik");
+        categoryList.add("Hushållsvaror");
+
+
+        ProductRepository mockedRepository = mock(ProductRepository.class);
+        when(mockedRepository.findAllCategories()).thenReturn(categoryList);
+        assertEquals(2, categoryList.size());
+
+    }
+
+    @Test
+    void whenSearchingForProductInCategory_thenGetCorrectProduct(){
+        //given
+        Product product = new Product("fotboll", 34.0, "elektronik", "", "");
+
+
+       // List<Product> productList = underTest.getProductsByCategory("elektronik");
+
+
+assertEquals("fotboll",product.getTitle());
+
+
+    }
+
+
+
+
+@Test
+void whenSearchingForACategory_thenGetCorrectCategory(){
+
+    List<String> categoryList = new ArrayList<String>();
+    categoryList.add("Elektronik");
+    categoryList.add("Hushållsvaror");
+
+    ProductRepository mockedRepository = mock(ProductRepository.class);
+
+
+
+
+    assertEquals("Elektronik", categoryList.get(0));
+
+
+
+}
 
     //public List<Product> getAllProducts() {
     //        return productRepository.findAll();
@@ -66,7 +133,7 @@ class ProductServiceTest {
         underTest.addProduct(product);
         //then
         verify(repository).save(productCaptor.capture());
-        //assertEquals(product.productCaptor.getValue());
+        assertEquals(product,productCaptor.getValue());
 
     }
 
@@ -84,7 +151,8 @@ class ProductServiceTest {
                 () -> underTest.addProduct(product));
         verify(repository, times(1)).findByTitle(title);//verifierar att den anropats bara
         verify(repository, never()).save(any());
-        // assertEquals("En produkt med titeln_ vår titel finns redan", Exception.getMessage());
+
+        //assertEquals(product,"En produkt med titeln_ vår titel finns redan", Exception.getMessage());
 
 
     }

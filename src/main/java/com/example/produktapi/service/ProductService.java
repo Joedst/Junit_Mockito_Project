@@ -25,7 +25,7 @@ public class ProductService {
         return productRepository.findAll();
     }
 
-    public List<String> getAllCategories() {
+    public List<String> getAllCategories() {                                            //Successfully tested!
         return productRepository.findAllCategories();
     }
 
@@ -49,7 +49,7 @@ public class ProductService {
             throw new BadRequestException("En produkt med titeln: "+ product.getTitle() + " finns redan");
         }
         return productRepository.save(product);
-    }
+    }    //Successfully tested!!
 
     public Product updateProduct(Product updatedProduct, Integer id) {
 
