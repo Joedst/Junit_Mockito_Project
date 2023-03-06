@@ -33,9 +33,6 @@ class ProductRepositoryTest {
     }
 
 
-
-
-
     void findByTitle() {
     }
     //Mock = istället för att man skapar ett actuall product repository så skapar den en dummy, så tanken är att man kan modifiera en repository för testsyften
