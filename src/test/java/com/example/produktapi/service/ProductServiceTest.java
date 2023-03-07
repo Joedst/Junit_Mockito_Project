@@ -176,12 +176,12 @@ class ProductServiceTest {
 
     }
 
-    /*
+
     @Test
     void githubActionsTestThatShouldFail(){
         Assertions.assertEquals(5,10);
 
-    } */
+    }
 
 
 }
