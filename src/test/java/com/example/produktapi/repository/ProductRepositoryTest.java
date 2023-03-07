@@ -29,8 +29,8 @@ class ProductRepositoryTest {
     @Test
     void whenFindingByCategory_thenReturnProductsInCategory() {
         // Given
-        Product product1 = new Product("Macbook Pro", 2000.0, "Electronics", "", "");
-        Product product2 = new Product("Mixer", 400.0, "Home Appliances", "", "");
+        Product product1 = new Product("Laptop", 2000.0, "Electronics", "", "");
+        Product product2 = new Product("Stavmixer", 400.0, "Home Appliances", "", "");
         underTest.save(product1);
         underTest.save(product2);
         // When
@@ -44,10 +44,10 @@ class ProductRepositoryTest {
     @Test
     void whenFindingByTitle_thenReturnProductWithTitle() {
         // Given
-        Product product = new Product("Macbook Pro", 2000.0, "Electronics", "", "");
+        Product product = new Product("Laptop", 2000.0, "Electronics", "", "");
         underTest.save(product);
         // When
-        Optional<Product> foundProduct = underTest.findByTitle("Macbook Pro");
+        Optional<Product> foundProduct = underTest.findByTitle("Laptop");
         // Then
         assertTrue(foundProduct.isPresent());
         assertEquals(product, foundProduct.get());

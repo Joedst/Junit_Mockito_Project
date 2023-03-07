@@ -3,6 +3,7 @@ package com.example.produktapi.service;
 import com.example.produktapi.exception.BadRequestException;
 import com.example.produktapi.model.Product;
 import com.example.produktapi.repository.ProductRepository;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
@@ -49,9 +50,14 @@ class ProductServiceTest {
         List<String> categoryList = new ArrayList<String>();
         categoryList.add("Elektronik");
         categoryList.add("Hushållsvaror");
+        //My mock repo
         ProductRepository mockedRepository = mock(ProductRepository.class);
+        //What my repo is doing - When findAllCategories is called on, så ska den returna category list
         when(mockedRepository.findAllCategories()).thenReturn(categoryList);
-        assertEquals(2, categoryList.size());
+        //Result
+        List<String> result = mockedRepository.findAllCategories();
+        assertEquals(2, result.size());
+        assertEquals(categoryList, result);
     }
 
     @Test
@@ -76,8 +82,6 @@ class ProductServiceTest {
         categoryList.add("Elektronik");
         categoryList.add("Hushållsvaror");
         assertEquals("Elektronik", categoryList.get(0));
-
-
     }
 
     //public List<Product> getAllProducts() {
@@ -104,9 +108,15 @@ class ProductServiceTest {
 
     @Test
     void givenAnExistingCategory_whenGetProductsByCategory_thenReceivesANonEmptyList() {
+        //given
+        List<Product> productList = Arrays.asList(
+                new Product("Product1", 100.0, "Electronics", "", ""),
+                new Product("Product2", 50.0, "Electronics", "", "")
+        );
+        when(repository.findByCategory("Electronics")).thenReturn(productList);
         //when
         List<Product> productsByCategory = underTest.getProductsByCategory("Electronics");
-        verify(repository, times(1));
+        assertFalse(productsByCategory.isEmpty());
     }
 
     @Test
@@ -154,16 +164,24 @@ class ProductServiceTest {
         String title = "vår test-titel";
         Product product = new Product(title, 34.0, "", "", "");
         given(repository.findByTitle(title)).willReturn(Optional.of(product));
-//Så länge den här metoden anropas på med vår test titel så ska den returnera produkt
-        //when
-        underTest.addProduct(product);
-        //then
-        assertThrows(BadRequestException.class,
-                () -> underTest.addProduct(product));
-        verify(repository, times(1)).findByTitle(title);//verifierar att den anropats bara
+        //Så länge den här metoden anropas på med vår test titel så ska den returnera produkt
+
+
+        //when,then
+        assertThrows(BadRequestException.class, () -> underTest.addProduct(product),
+                "En produkt med titeln '" + title + "' finns redan");
+
+        verify(repository, times(1)).findByTitle(title); //verifierar att den anropats bara
         verify(repository, never()).save(any());
-        assertEquals(product, "En produkt med titeln_ vår titel finns redan");
-    } //TODO sort out
+
+    }
+
+    /*
+    @Test
+    void githubActionsTestThatShouldFail(){
+        Assertions.assertEquals(5,10);
+
+    } */
 
 
 }

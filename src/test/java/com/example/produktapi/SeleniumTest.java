@@ -41,7 +41,6 @@ public class SeleniumTest {
     @Test
     void checkAmountOfProducts() {
 
-
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(25));
         List<WebElement> products = driver.findElements(By.className("productItem"));
         assertEquals(20, products.size(), "Amount mismatch!");
@@ -52,13 +51,23 @@ public class SeleniumTest {
 
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(15));
 
-        String product1 = driver.findElement(By.xpath("//*[@id='productsContainer']/div/div[1]/div/div/p)")).getText();
+        String product1 = driver.findElement(By.xpath("//*[@id='productsContainer']/div/div[1]/div/div/p")).getText();
+        String product2 = driver.findElement(By.xpath("//*[@id='productsContainer']/div/div[2]/div/div/p")).getText();
+        String product3 = driver.findElement(By.xpath("//*[@id='productsContainer']/div/div[3]/div/div/p")).getText();
+
 
         String findPriceForProduct1 = "109.95";
+        String findPriceForProduct2 = "22.3";
+        String findPriceForProduct3 = "55.99";
+
 
         boolean product1PriceValidation = product1.contains(findPriceForProduct1);
+        boolean product2PriceValidation = product2.contains(findPriceForProduct2);
+        boolean product3PriceValidation = product3.contains(findPriceForProduct3);
 
         assertTrue(product1PriceValidation, "Price mismatch!!");
+        assertTrue(product2PriceValidation, "Price mismatch!!");
+        assertTrue(product3PriceValidation, "Price mismatch!!");
     }
 
 
