@@ -1,8 +1,12 @@
 package com.example.produktapi.service;
 
 import com.example.produktapi.exception.BadRequestException;
+import com.example.produktapi.exception.EntityNotFoundException;
 import com.example.produktapi.model.Product;
 import com.example.produktapi.repository.ProductRepository;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -11,6 +15,10 @@ import org.mockito.*;
 import static org.mockito.BDDMockito.*;
 
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.*;
 
@@ -147,6 +155,21 @@ class ProductServiceTest {
 
 
     @Test
+    void whenUpdatingProductWithExistingId_thenThrowError() {            //updateProduct (felflöde)
+//given
+        Integer id = 1;
+        Product productBefore = new Product("produktBeforeUpdate", 34.0, "", "", "");
+        productBefore.setId(id);
+        Product productAfter = new Product("produktAfterUpdate", 1337.0, "", "", "");
+        when(repository.findById(id)).thenReturn(Optional.of(productBefore));
+        when(repository.save(productBefore)).thenThrow(new RuntimeException("Produkt med id" + id + "finns redan"));
+        Exception exception = assertThrows(RuntimeException.class, () -> underTest.updateProduct(productAfter, id));
+        assertEquals("Produkt med id" + id + "finns redan", exception.getMessage());
+
+    }
+
+
+    @Test
     void givenProductId_whenDeleteProduct_thenProductIsSuccessfullyDeleted() {
         Integer id = 1;
         Product product = new Product("produkt", 34.0, "", "", "");
@@ -159,27 +182,67 @@ class ProductServiceTest {
 
 
     @Test
+    void givenNonexistentId_whenDeleteProduct_thenThrowError() {  //deleteProduct (felflöde)
+        Integer id = 1;
+        when(repository.findById(id)).thenReturn(Optional.empty());
+        Exception exception = assertThrows(EntityNotFoundException.class, () -> {
+            underTest.deleteProduct(id);
+        });
+        assertEquals("Produkt med id " + id + " hittades inte", exception.getMessage());
+        verify(repository, never()).deleteById(any());
+        verifyNoMoreInteractions(repository);
+    }
+
+
+    @Test
     void whenAddingProductWithExistingTitle_thenThrowError() {
         //given
         String title = "vår test-titel";
         Product product = new Product(title, 34.0, "", "", "");
         given(repository.findByTitle(title)).willReturn(Optional.of(product));
         //Så länge den här metoden anropas på med vår test titel så ska den returnera produkt
-
-
         //when,then
         assertThrows(BadRequestException.class, () -> underTest.addProduct(product),
                 "En produkt med titeln '" + title + "' finns redan");
-
         verify(repository, times(1)).findByTitle(title); //verifierar att den anropats bara
         verify(repository, never()).save(any());
 
     }
 
+    private @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY) Integer id;
 
     @Test
-    void githubActionsTestThatShouldFail(){
-        Assertions.assertEquals(10,10);
+    void whenGettingProductById_thenReturnProductWithCorrectId() {                  // - getProductById (normalflöde)
+        // Given
+        Product product = new Product("Laptop", 2000.0, "Electronics", "", "");
+        product.setId(4);
+        // When
+        repository.save(product);
+        // Then
+        assertEquals(product.getId(), 4);
+    }
+
+
+    @Test
+    void whenGettingProductById_thenThrowErrorIfIdMismatch() {               // - getProductById(felflöde)
+        // Given
+        int actualId = 5;
+
+        Product product = new Product("Laptop", 2000.0, "Electronics", "", "");
+        product.setId(actualId);
+        // When
+        when(repository.findById(actualId)).thenReturn(Optional.empty());
+        repository.save(product);
+        // Then
+        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> underTest.getProductById(actualId));
+        assertEquals("Produkt med id " +actualId+ " hittades inte", exception.getMessage());
+    }
+
+
+    @Test
+    void githubActionsTestThatShouldFail() {
+        Assertions.assertEquals(10, 10);
 
     }
 
