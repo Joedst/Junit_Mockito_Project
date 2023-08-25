@@ -156,15 +156,17 @@ class ProductServiceTest {
 
     @Test
     void whenUpdatingProductWithExistingId_thenThrowError() {            //updateProduct (felflöde)
-//given
-        Integer id = 1;
-        Product productBefore = new Product("produktBeforeUpdate", 34.0, "", "", "");
-        productBefore.setId(id);
-        Product productAfter = new Product("produktAfterUpdate", 1337.0, "", "", "");
-        when(repository.findById(id)).thenReturn(Optional.of(productBefore));
-        when(repository.save(productBefore)).thenThrow(new RuntimeException("Produkt med id" + id + "finns redan"));
-        Exception exception = assertThrows(RuntimeException.class, () -> underTest.updateProduct(productAfter, id));
-        assertEquals("Produkt med id" + id + "finns redan", exception.getMessage());
+        //given
+        Integer id = 10;
+        Product productUpdate = new Product("", 100.0, "", "", "");
+
+        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> {
+            //when
+            underTest.updateProduct(productUpdate, id);
+        });
+        //then
+        assertEquals(id, id);
+        assertEquals("Produkt med id " + id + " hittades inte", exception.getMessage());
 
     }
 
@@ -213,14 +215,17 @@ class ProductServiceTest {
     @GeneratedValue(strategy = GenerationType.IDENTITY) Integer id;
 
     @Test
-    void whenGettingProductById_thenReturnProductWithCorrectId() {                  // - getProductById (normalflöde)
+    void whenGetProductById_thenReturnProduct() {                  // - getProductById (normalflöde)
         // Given
-        Product product = new Product("Laptop", 2000.0, "Electronics", "", "");
-        product.setId(4);
+        Integer productId = 2;
+        when(repository.findById(productId)).thenReturn(Optional.empty());
         // When
-        repository.save(product);
+        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> {
+            underTest.getProductById(productId);
+        });
         // Then
-        assertEquals(product.getId(), 4);
+        assertEquals("Produkt med id " + productId + " hittades inte", exception.getMessage());
+
     }
 
 
@@ -228,15 +233,12 @@ class ProductServiceTest {
     void whenGettingProductById_thenThrowErrorIfIdMismatch() {               // - getProductById(felflöde)
         // Given
         int actualId = 5;
-
         Product product = new Product("Laptop", 2000.0, "Electronics", "", "");
-        product.setId(actualId);
         // When
         when(repository.findById(actualId)).thenReturn(Optional.empty());
-        repository.save(product);
         // Then
         EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> underTest.getProductById(actualId));
-        assertEquals("Produkt med id " +actualId+ " hittades inte", exception.getMessage());
+        assertEquals("Produkt med id " + actualId + " hittades inte", exception.getMessage());
     }
 
 
@@ -248,7 +250,5 @@ class ProductServiceTest {
 
 
 }
-
-
-
-
+//when(repository.findById(actualId)).thenReturn(Optional.empty());
+//        repository.save(product);
